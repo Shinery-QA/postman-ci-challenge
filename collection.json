@@ -1,0 +1,801 @@
+{
+	"info": {
+		"_postman_id": "e7a49f53-15c5-4dfd-91a3-b9f5a6d8f6cc",
+		"name": "Newman Command",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46186982"
+	},
+	"item": [
+		{
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"pm.environment.set(\"access_token\", response.access_token);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"Info@workrity.com\",\r\n    \"password\": \"obaalanu\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-dev.gigrithm.com/api/v1/admin/auth/login",
+					"protocol": "https",
+					"host": [
+						"api-dev",
+						"gigrithm",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUsers",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 3000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has required fields\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('page');\r",
+							"    pm.expect(jsonData).to.have.property('per_page');\r",
+							"    pm.expect(jsonData).to.have.property('total');\r",
+							"    pm.expect(jsonData).to.have.property('total_pages');\r",
+							"    pm.expect(jsonData).to.have.property('data');\r",
+							"    pm.expect(jsonData).to.have.property('support');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Data array has correct length\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.data).to.be.an('array');\r",
+							"    pm.expect(jsonData.data).to.have.lengthOf(6);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each user has required properties\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.data.forEach(function(user) {\r",
+							"        pm.expect(user).to.have.property('id');\r",
+							"        pm.expect(user).to.have.property('email');\r",
+							"        pm.expect(user).to.have.property('first_name');\r",
+							"        pm.expect(user).to.have.property('last_name');\r",
+							"        pm.expect(user).to.have.property('avatar');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"All emails are valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\r",
+							"    \r",
+							"    jsonData.data.forEach(function(user) {\r",
+							"        pm.expect(user.email).to.match(emailRegex);\r",
+							"        pm.expect(user.email).to.include('@reqres.in');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Avatar URLs are valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    \r",
+							"    jsonData.data.forEach(function(user) {\r",
+							"        pm.expect(user.avatar).to.include('https://reqres.in/img/faces/');\r",
+							"        pm.expect(user.avatar).to.include(user.id + '-image.jpg');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Support section is valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(jsonData.support).to.have.property('url');\r",
+							"    pm.expect(jsonData.support).to.have.property('text');\r",
+							"    pm.expect(jsonData.support.url).to.be.a('string');\r",
+							"    pm.expect(jsonData.support.text).to.be.a('string');\r",
+							"    pm.expect(jsonData.support.url).to.include('https://');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Names are non-empty strings\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    \r",
+							"    jsonData.data.forEach(function(user) {\r",
+							"        pm.expect(user.first_name).to.be.a('string').and.not.empty;\r",
+							"        pm.expect(user.last_name).to.be.a('string').and.not.empty;\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"pm.test(\"Save user IDs for getUserById calls\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    \r",
+							"    jsonData.data.forEach(function(user, index) {\r",
+							"        pm.environment.set(`userId_${user.id}`, user.id);\r",
+							"        pm.environment.set(`userEmail_${user.id}`, user.email);\r",
+							"        pm.environment.set(`userFirstName_${user.id}`, user.first_name);\r",
+							"        pm.environment.set(`userLastName_${user.id}`, user.last_name);\r",
+							"    });\r",
+							"    \r",
+							"    // Save specific user IDs for common use cases\r",
+							"    pm.environment.set(\"firstUserId\", jsonData.data[0].id);\r",
+							"    pm.environment.set(\"secondUserId\", jsonData.data[1].id);\r",
+							"    pm.environment.set(\"lastUserId\", jsonData.data[jsonData.data.length - 1].id);\r",
+							"    \r",
+							"    // Save a random user ID for testing\r",
+							"    const randomIndex = Math.floor(Math.random() * jsonData.data.length);\r",
+							"    pm.environment.set(\"randomUserId\", jsonData.data[randomIndex].id);\r",
+							"    \r",
+							"    // Save all user IDs as comma-separated string\r",
+							"    const allIds = jsonData.data.map(user => user.id).join(',');\r",
+							"    pm.environment.set(\"allUserIds\", allIds);\r",
+							"    \r",
+							"    console.log(\"✅ User IDs saved for getUserById endpoint:\");\r",
+							"    jsonData.data.forEach(user => {\r",
+							"        console.log(`   - User ${user.id}: ${user.first_name} ${user.last_name}`);\r",
+							"    });\r",
+							"    \r",
+							"    console.log(`Quick access variables:`);\r",
+							"    console.log(`   - firstUserId: ${jsonData.data[0].id}`);\r",
+							"    console.log(`   - secondUserId: ${jsonData.data[0].id}`);\r",
+							"    console.log(`   - thirdUserId: ${jsonData.data[0].id}`);\r",
+							"    console.log(`   - fifthUserId: ${jsonData.data[0].id}`);\r",
+							"    console.log(`   - randomUserId: ${jsonData.data[randomIndex].id}`);\r",
+							"    console.log(`   - lastUserId: ${jsonData.data[jsonData.data.length - 1].id}`);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://reqres.in/api/users",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUsersById",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response has data and support properties\", function () {\r",
+							"    pm.expect(response).to.have.property('data');\r",
+							"    pm.expect(response).to.have.property('support');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Data has correct properties\", function () {\r",
+							"    const data = response.data;\r",
+							"    pm.expect(data).to.have.property('id').that.is.a('number');\r",
+							"    pm.expect(data).to.have.property('email').that.is.a('string');\r",
+							"    pm.expect(data).to.have.property('first_name').that.is.a('string');\r",
+							"    pm.expect(data).to.have.property('last_name').that.is.a('string');\r",
+							"    pm.expect(data).to.have.property('avatar').that.is.a('string');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Support has correct properties\", function () {\r",
+							"    const support = response.support;\r",
+							"    pm.expect(support).to.have.property('url').that.is.a('string');\r",
+							"    pm.expect(support).to.have.property('text').that.is.a('string');\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://reqres.in/api/users/1",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api",
+						"users",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getProfessionals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response status is success\", function () {\r",
+							"    pm.expect(response.status).to.equal(\"success\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response message is operation successful\", function () {\r",
+							"    pm.expect(response.message).to.equal(\"Operation successful\");\r",
+							"});\r",
+							"\r",
+							"const professionals = response.data.data;\r",
+							"\r",
+							"pm.test(\"Data array contains expected fields\", function () {\r",
+							"    professionals.forEach(professional => {\r",
+							"        pm.expect(professional).to.have.all.keys(\r",
+							"            \"id\", \"firstName\", \"lastName\", \"email\", \"role\", \r",
+							"            \"isVerified\", \"agreeToTerms\", \"createdAt\", \r",
+							"            \"hashedRefreshToken\", \"lastActive\", \"status\", \r",
+							"            \"gender\", \"culture\", \"hasDisability\", \"isActive\", \r",
+							"            \"_count\", \"userContactInfo\"\r",
+							"        );\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-dev.gigrithm.com/api/v1/admin/professionals",
+					"protocol": "https",
+					"host": [
+						"api-dev",
+						"gigrithm",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"professionals"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deactivateProfessionals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response status is success\", function () {\r",
+							"    pm.expect(response.status).to.equal(\"success\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response message is operation successful\", function () {\r",
+							"    pm.expect(response.message).to.equal(\"Operation successful\");\r",
+							"});\r",
+							"\r",
+							"const professionals = response.data;\r",
+							"\r",
+							"pm.test(\"Data object contains expected fields\", function () {\r",
+							"    pm.expect(professionals).to.have.all.keys(\r",
+							"        \"id\", \"firstName\", \"lastName\", \"email\", \"role\", \r",
+							"        \"isVerified\", \"agreeToTerms\", \"createdAt\", \r",
+							"        \"hashedRefreshToken\", \"lastActive\", \"status\", \r",
+							"        \"gender\", \"culture\", \"hasDisability\", \"isActive\"\r",
+							"    );\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Data status is DEACTIVATED\", function () {\r",
+							"    pm.expect(response.data.status).to.equal(\"DEACTIVATED\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-dev.gigrithm.com/api/v1/admin/professionals/8b96cb73-9e72-41a8-8599-4918ab2aa604/deactivate",
+					"protocol": "https",
+					"host": [
+						"api-dev",
+						"gigrithm",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"professionals",
+						"8b96cb73-9e72-41a8-8599-4918ab2aa604",
+						"deactivate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reactivateProfessionals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response status is success\", function () {\r",
+							"    pm.expect(response.status).to.equal(\"success\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response message is operation successful\", function () {\r",
+							"    pm.expect(response.message).to.equal(\"Operation successful\");\r",
+							"});\r",
+							"\r",
+							"const professional = response.data;\r",
+							"\r",
+							"pm.test(\"Data object contains expected fields\", function () {\r",
+							"    pm.expect(professional).to.have.all.keys(\r",
+							"        \"id\", \"firstName\", \"lastName\", \"email\", \"role\", \r",
+							"        \"isVerified\", \"agreeToTerms\", \"createdAt\", \r",
+							"        \"hashedRefreshToken\", \"lastActive\", \"status\", \r",
+							"        \"gender\", \"culture\", \"hasDisability\", \"isActive\"\r",
+							"    );\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Data status is ACTIVE\", function () {\r",
+							"    pm.expect(professional.status).to.equal(\"ACTIVE\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-dev.gigrithm.com/api/v1/admin/professionals/8b96cb73-9e72-41a8-8599-4918ab2aa604/reactivate",
+					"protocol": "https",
+					"host": [
+						"api-dev",
+						"gigrithm",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"professionals",
+						"8b96cb73-9e72-41a8-8599-4918ab2aa604",
+						"reactivate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "flagProfessionals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response status is success\", function () {\r",
+							"    pm.expect(response.status).to.equal(\"success\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response message is operation successful\", function () {\r",
+							"    pm.expect(response.message).to.equal(\"Operation successful\");\r",
+							"});\r",
+							"\r",
+							"const professional = response.data;\r",
+							"\r",
+							"pm.test(\"Data object contains expected fields\", function () {\r",
+							"    pm.expect(professional).to.have.all.keys(\r",
+							"        \"id\", \"firstName\", \"lastName\", \"email\", \"role\", \r",
+							"        \"isVerified\", \"agreeToTerms\", \"createdAt\", \r",
+							"        \"hashedRefreshToken\", \"lastActive\", \"status\", \r",
+							"        \"gender\", \"culture\", \"hasDisability\", \"isActive\"\r",
+							"    );\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Data status is FLAGGED\", function () {\r",
+							"    pm.expect(professional.status).to.equal(\"FLAGGED\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "reason",
+							"value": "HATE",
+							"description": "Accepted values: HATE\nABUSE_AND_HARASSMENT\nVIOLENT_SPEECH\nPRIVACY",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://api-dev.gigrithm.com/api/v1/admin/professionals/8b96cb73-9e72-41a8-8599-4918ab2aa604/flag",
+					"protocol": "https",
+					"host": [
+						"api-dev",
+						"gigrithm",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"professionals",
+						"8b96cb73-9e72-41a8-8599-4918ab2aa604",
+						"flag"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "unflagProfessionals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response status is success\", function () {\r",
+							"    pm.expect(response.status).to.equal(\"success\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response message is operation successful\", function () {\r",
+							"    pm.expect(response.message).to.equal(\"Operation successful\");\r",
+							"});\r",
+							"\r",
+							"const professional = response.data;\r",
+							"\r",
+							"pm.test(\"Data object contains expected fields\", function () {\r",
+							"    pm.expect(professional).to.have.all.keys(\r",
+							"        \"id\", \"firstName\", \"lastName\", \"email\", \"role\", \r",
+							"        \"isVerified\", \"agreeToTerms\", \"createdAt\", \r",
+							"        \"hashedRefreshToken\", \"lastActive\", \"status\", \r",
+							"        \"gender\", \"culture\", \"hasDisability\", \"isActive\"\r",
+							"    );\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Data status is ACTIVE\", function () {\r",
+							"    pm.expect(professional.status).to.equal(\"ACTIVE\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-dev.gigrithm.com/api/v1/admin/professionals/8b96cb73-9e72-41a8-8599-4918ab2aa604/unflag",
+					"protocol": "https",
+					"host": [
+						"api-dev",
+						"gigrithm",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"professionals",
+						"8b96cb73-9e72-41a8-8599-4918ab2aa604",
+						"unflag"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
